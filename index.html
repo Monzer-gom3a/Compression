@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compression Algorithm Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --background: #0a0a0a;
+            --card-bg: rgba(32, 32, 35, 0.7);
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.3);
+            --text: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 20px var(--primary-glow);
+            }
+
+            50% {
+                box-shadow: 0 0 40px var(--primary-glow);
+            }
+
+            100% {
+                box-shadow: 0 0 20px var(--primary-glow);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 3rem 0;
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .main-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            animation: glow 3s infinite;
+        }
+
+        .section {
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        textarea,
+        select {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+            resize: vertical;
+        }
+
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, rgba(79, 70, 229, 0.8) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2),
+                    transparent);
+            transition: 0.5s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--primary-glow);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .result h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .result p {
+            color: var(--text-secondary);
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result p:last-child {
+            border-bottom: none;
+        }
+
+        .error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-top: 1rem;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 1.5rem;
+            background: var(--success);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+        }
+
+        .spinner {
+            display: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-left: 0.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner.show {
+            display: inline-block;
+        }
+
+        canvas {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--primary);
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Glass cards effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+
+        /* Gradient text effect */
+        .gradient-text {
+            background: linear-gradient(135deg, #4f46e5 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Input file styling */
+        input[type="file"] {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            font-family: inherit;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Labels styling */
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin: 1.5rem 0;
+        }
+
+        .glow-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #4f46e5 0%, #10b981 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .glow-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2),
+                    transparent);
+            transition: 0.5s;
+        }
+
+        .glow-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--primary-glow);
+        }
+
+        .glow-button:hover::before {
+            left: 100%;
+        }
+
+        .result.glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .preview-canvas {
+            border: 1px dashed rgba(255, 255, 255, 0.5);
+            margin: 1rem 0;
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .error-input {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        textarea:focus.error-input {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-top: 1rem;
+            animation: fadeInUp 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="gradient-text">Compression Algorithm Simulator</h1>
+
+        <!-- Text Compression Section -->
+        <div class="glass-card">
+            <h2 class="gradient-text">Text Compression</h2>
+            <div class="input-group">
+                <label for="inputText">Enter Text to Compress</label>
+                <textarea id="inputText" rows="5" placeholder="Type or paste your text here..."></textarea>
+            </div>
+            <div class="input-group">
+                <label for="textAlgorithm">Compression Algorithm</label>
+                <select id="textAlgorithm">
+                    <option value="huffman">Huffman Coding</option>
+                    <option value="lzw">LZW Compression</option>
+                    <option value="rle">Run-Length Encoding</option>
+                    <option value="shannon-fano">Shannon-Fano Coding</option>
+                    <option value="deflate">Deflate (Simplified)</option>
+                </select>
+            </div>
+            <button id="compressTextBtn" class="glow-button">
+                <span id="textBtnText">Compress Text</span>
+                <div id="textSpinner" class="spinner"></div>
+            </button>
+            <div id="textResult" class="result glass-effect">
+                <h3 class="gradient-text">Results</h3>
+                <p id="textOriginalBits"></p>
+                <p id="textCompressedBits"></p>
+                <p id="textCompressionRatio"></p>
+                <p id="textCompressedOutput"></p>
+            </div>
+        </div>
+
+        <!-- Image Compression Section -->
+        <div class="glass-card">
+            <h2 class="gradient-text">Image Compression</h2>
+            <div class="input-group">
+                <label for="imageUpload">Upload Image</label>
+                <input type="file" id="imageUpload" accept="image/*">
+            </div>
+            <canvas id="imagePreview" class="hidden preview-canvas"></canvas>
+            <div class="input-group">
+                <label for="imageAlgorithm">Compression Algorithm</label>
+                <select id="imageAlgorithm">
+                    <option value="jpeg">JPEG-like Compression</option>
+                </select>
+            </div>
+            <button id="compressImageBtn" class="glow-button" disabled>
+                <span id="imageBtnText">Compress Image</span>
+                <div id="imageSpinner" class="spinner"></div>
+            </button>
+            <a id="downloadImageBtn" class="hidden download-btn glow-button" href="#" download="compressed_image.jpg">
+                Download Compressed Image
+            </a>
+            <div id="imageResult" class="result glass-effect">
+                <h3 class="gradient-text">Results</h3>
+                <p id="imageMetadata"></p>
+                <p id="imageOriginalBits"></p>
+                <p id="imageCompressedBits"></p>
+                <p id="imageCompressionRatio"></p>
+            </div>
+        </div>
+    </div>
+    <footer class="glass-effect">
+        <p>Made with ♥️ by <a href="https://www.youtube.com/@_Monzer" target="_blank">MONZER</a></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Helper function to safely set textContent
+            function setTextContent(elementId, text) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = text;
+                } else {
+                    console.error(`Element with ID '${elementId}' not found.`);
+                }
+            }
+
+            // Input validation function
+            function validateInput(text) {
+                if (!text || text.trim().length === 0) {
+                    throw new Error('Please enter non-empty text');
+                }
+                return text.trim();
+            }
+
+            // Safe compression wrapper
+            function safeCompress(text, algorithm) {
+                try {
+                    const validatedText = validateInput(text);
+                    switch (algorithm) {
+                        case 'huffman':
+                            return huffmanCompress(validatedText);
+                        case 'lzw':
+                            return lzwCompress(validatedText);
+                        case 'rle':
+                            return rleCompress(validatedText);
+                        case 'shannon-fano':
+                            return shannonFanoCompress(validatedText);
+                        case 'deflate':
+                            return deflateCompress(validatedText);
+                        default:
+                            throw new Error('Invalid compression algorithm');
+                    }
+                } catch (error) {
+                    throw new Error(`Compression failed: ${error.message}`);
+                }
+            }
+
+            // Huffman Coding Implementation
+            class HuffmanNode {
+                constructor(char, freq) {
+                    this.char = char;
+                    this.freq = freq;
+                    this.left = null;
+                    this.right = null;
+                }
+            }
+
+            function huffmanCompress(text) {
+                if (!text) return { compressed: '', codes: {}, bits: 0 };
+                const freqMap = {};
+                for (let char of text) {
+                    freqMap[char] = (freqMap[char] || 0) + 1;
+                }
+                const nodes = Object.entries(freqMap).map(([char, freq]) => new HuffmanNode(char, freq));
+                while (nodes.length > 1) {
+                    nodes.sort((a, b) => a.freq - b.freq);
+                    const left = nodes.shift();
+                    const right = nodes.shift();
+                    const newNode = new HuffmanNode(null, left.freq + right.freq);
+                    newNode.left = left;
+                    newNode.right = right;
+                    nodes.push(newNode);
+                }
+                const codes = {};
+                function generateCodes(node, code = '') {
+                    if (!node) return;
+                    if (node.char) codes[node.char] = code;
+                    generateCodes(node.left, code + '0');
+                    generateCodes(node.right, code + '1');
+                }
+                generateCodes(nodes[0]);
+                let compressed = '';
+                for (let char of text) {
+                    compressed += codes[char];
+                }
+                return { compressed, codes, bits: compressed.length };
+            }
+
+            // LZW Compression Implementation
+            function lzwCompress(text) {
+                if (!text) return { compressed: '', codes: {}, bits: 0 };
+                const dictionary = {};
+                let dictSize = 256;
+                for (let i = 0; i < 256; i++) {
+                    dictionary[String.fromCharCode(i)] = i;
+                }
+                let result = [];
+                let w = '';
+                for (let char of text) {
+                    let wc = w + char;
+                    if (dictionary.hasOwnProperty(wc)) {
+                        w = wc;
+                    } else {
+                        result.push(dictionary[w]);
+                        dictionary[wc] = dictSize++;
+                        w = char;
+                    }
+                }
+                if (w) result.push(dictionary[w]);
+                const bits = Math.ceil(result.length * Math.log2(dictSize));
+                return { compressed: result.join(','), codes: dictionary, bits };
+            }
+
+            // Run-Length Encoding Implementation
+            function rleCompress(text) {
+                if (!text) return { compressed: '', bits: 0 };
+                let compressed = '';
+                let count = 1;
+                let currentChar = text[0];
+                for (let i = 1; i < text.length; i++) {
+                    if (text[i] === currentChar) {
+                        count++;
+                    } else {
+                        compressed += count + currentChar;
+                        currentChar = text[i];
+                        count = 1;
+                    }
+                }
+                compressed += count + currentChar;
+                const bits = compressed.length * 8;
+                return { compressed, bits };
+            }
+
+            // Shannon-Fano Coding Implementation
+            function shannonFanoCompress(text) {
+                if (!text) return { compressed: '', codes: {}, bits: 0 };
+                const freqMap = {};
+                for (let char of text) {
+                    freqMap[char] = (freqMap[char] || 0) + 1;
+                }
+                const chars = Object.entries(freqMap).sort((a, b) => b[1] - a[1]);
+                function assignCodes(chars, start, end, code = '') {
+                    if (start >= end) return {};
+                    if (start + 1 === end) return { [chars[start][0]]: code };
+                    let totalFreq = 0;
+                    for (let i = start; i < end; i++) totalFreq += chars[i][1];
+                    let leftFreq = 0;
+                    let split = start;
+                    while (split < end && leftFreq <= totalFreq / 2) {
+                        leftFreq += chars[split][1];
+                        split++;
+                    }
+                    const leftCodes = assignCodes(chars, start, split, code + '0');
+                    const rightCodes = assignCodes(chars, split, end, code + '1');
+                    return { ...leftCodes, ...rightCodes };
+                }
+                const codes = assignCodes(chars, 0, chars.length);
+                let compressed = '';
+                for (let char of text) {
+                    compressed += codes[char];
+                }
+                return { compressed, codes, bits: compressed.length };
+            }
+
+            // Deflate (Simplified) Implementation
+            function deflateCompress(text) {
+                if (!text) return { compressed: '', bits: 0 };
+                const huffmanResult = huffmanCompress(text);
+                const lzwResult = lzwCompress(text);
+                const combined = huffmanResult.compressed + '|' + lzwResult.compressed;
+                const bits = huffmanResult.bits + lzwResult.bits;
+                return { compressed: combined, bits };
+            }
+
+            // Image validation function
+            function validateImage(file) {
+                if (!file) {
+                    throw new Error('Please select an image file');
+                }
+                if (!file.type.startsWith('image/')) {
+                    throw new Error('Selected file must be an image');
+                }
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    throw new Error('Image size must be less than 10MB');
+                }
+                return true;
+            }
+
+            // Enhanced JPEG-like compression with quality validation
+            function jpegCompress(imageData, quality = 50) {
+                quality = Math.min(Math.max(quality, 1), 100); // Ensure quality is between 1-100
+                const canvas = document.createElement('canvas');
+                const maxDimension = 4096; // Max dimension limit
+
+                // Scale down if image is too large
+                let width = imageData.width;
+                let height = imageData.height;
+                if (width > maxDimension || height > maxDimension) {
+                    const ratio = Math.min(maxDimension / width, maxDimension / height);
+                    width *= ratio;
+                    height *= ratio;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+
+                try {
+                    ctx.drawImage(imageData, 0, 0, width, height);
+                    const originalBits = width * height * 24; // 24 bits per pixel (RGB)
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality / 100);
+
+                    if (!compressedDataUrl || compressedDataUrl === 'data:,') {
+                        throw new Error('Failed to generate compressed image data');
+                    }
+
+                    const base64Data = compressedDataUrl.split(',')[1] || '';
+                    const compressedBits = Math.round(base64Data.length * 6);
+
+                    return {
+                        compressed: compressedDataUrl,
+                        bits: compressedBits,
+                        originalBits,
+                        width,
+                        height
+                    };
+                } catch (error) {
+                    throw new Error(`Image compression failed: ${error.message}`);
+                }
+            }
+
+            // UI Handling
+            const compressTextBtn = document.getElementById('compressTextBtn');
+            if (!compressTextBtn) {
+                console.error("Button with ID 'compressTextBtn' not found.");
+                return;
+            }
+
+            compressTextBtn.addEventListener('click', () => {
+                const inputText = document.getElementById('inputText');
+                const algorithm = document.getElementById('textAlgorithm');
+                const btnText = document.getElementById('textBtnText');
+                const spinner = document.getElementById('textSpinner');
+                const resultDiv = document.getElementById('textResult');
+
+                // Clear previous results
+                if (resultDiv) {
+                    resultDiv.innerHTML = '<h3 class="gradient-text">Results</h3>';
+                }
+
+                // Validate elements exist
+                if (!inputText || !algorithm || !btnText || !spinner || !resultDiv) {
+                    console.error('One or more text compression elements not found.');
+                    if (resultDiv) {
+                        resultDiv.innerHTML = `
+                            <h3 class="gradient-text">Results</h3>
+                            <p class="error">Error: Page elements missing or invalid input.</p>
+                        `;
+                    }
+                    return;
+                }
+
+                // Validate input text
+                if (!inputText.value || inputText.value.trim().length === 0) {
+                    inputText.classList.add('error-input');
+                    resultDiv.innerHTML = `
+                        <h3 class="gradient-text">Results</h3>
+                        <p class="error">Please enter some text to compress</p>
+                    `;
+                    // Add shake animation to input
+                    inputText.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        inputText.style.animation = '';
+                    }, 500);
+                    return;
+                }
+
+                // Remove error styling if present
+                inputText.classList.remove('error-input');
+
+                btnText.textContent = 'Compressing...';
+                spinner.classList.add('show');
+
+                setTimeout(() => {
+                    try {
+                        const result = safeCompress(inputText.value, algorithm.value);
+                        const originalBits = inputText.value.length * 8;
+                        const compressedBits = result.bits;
+                        const compressionRatio = originalBits ? ((originalBits - compressedBits) / originalBits * 100).toFixed(2) : 0;
+
+                        resultDiv.innerHTML = `
+                            <h3 class="gradient-text">Results</h3>
+                            <p id="textOriginalBits">Original Bits: ${originalBits}</p>
+                            <p id="textCompressedBits">Compressed Bits: ${compressedBits}</p>
+                            <p id="textCompressionRatio">Compression Ratio: ${compressionRatio}%</p>
+                            <p id="textCompressedOutput">Compressed Output: ${result.compressed}</p>
+                        `;
+                    } catch (error) {
+                        resultDiv.innerHTML = `
+                            <h3 class="gradient-text">Results</h3>
+                            <p class="error">Error: ${error.message}</p>
+                        `;
+                    } finally {
+                        btnText.textContent = 'Compress Text';
+                        spinner.classList.remove('show');
+                    }
+                }, 500);
+            });
+
+            // Image Upload Handling with enhanced validation
+            const imageUpload = document.getElementById('imageUpload');
+            if (!imageUpload) {
+                console.error("Input with ID 'imageUpload' not found.");
+                return;
+            }
+
+            imageUpload.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                const resultDiv = document.getElementById('imageResult');
+                const canvas = document.getElementById('imagePreview');
+                const compressImageBtn = document.getElementById('compressImageBtn');
+
+                try {
+                    validateImage(file);
+
+                    const img = new Image();
+                    img.onload = () => {
+                        if (!canvas) {
+                            throw new Error("Preview canvas not found");
+                        }
+
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                        canvas.classList.remove('hidden');
+
+                        if (compressImageBtn) {
+                            compressImageBtn.disabled = false;
+                        }
+
+                        const metadata = `Image Metadata: ${img.width}x${img.height}px, Format: ${file.type}, Size: ${(file.size / 1024).toFixed(2)} KB`;
+                        setTextContent('imageMetadata', metadata);
+                    };
+
+                    img.onerror = () => {
+                        throw new Error('Failed to load image');
+                    };
+
+                    img.src = URL.createObjectURL(file);
+                } catch (error) {
+                    if (resultDiv) {
+                        resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                    }
+                    if (canvas) {
+                        canvas.classList.add('hidden');
+                    }
+                    if (compressImageBtn) {
+                        compressImageBtn.disabled = true;
+                    }
+                }
+            });
+
+            const compressImageBtn = document.getElementById('compressImageBtn');
+            if (!compressImageBtn) {
+                console.error("Button with ID 'compressImageBtn' not found.");
+                return;
+            }
+            compressImageBtn.addEventListener('click', () => {
+                const canvas = document.getElementById('imagePreview');
+                const btnText = document.getElementById('imageBtnText');
+                const spinner = document.getElementById('imageSpinner');
+                const resultDiv = document.getElementById('imageResult');
+                const downloadBtn = document.getElementById('downloadImageBtn');
+                if (!canvas || !btnText || !spinner || !resultDiv || !downloadBtn) {
+                    console.error('One or more image compression elements not found.');
+                    if (resultDiv) {
+                        resultDiv.innerHTML = '<p class="error">Error: Page elements missing.</p>';
+                    }
+                    return;
+                }
+                const img = new Image();
+                btnText.textContent = 'Compressing...';
+                spinner.classList.add('show');
+                downloadBtn.classList.add('hidden');
+                img.onload = () => {
+                    setTimeout(() => {
+                        try {
+                            const result = jpegCompress(img);
+                            setTextContent('imageOriginalBits', `Original Bits: ${result.originalBits}`);
+                            setTextContent('imageCompressedBits', `Compressed Bits: ${result.bits}`);
+                            setTextContent('imageCompressionRatio', `Compression Ratio: ${((result.originalBits - result.bits) / result.originalBits * 100).toFixed(2)}%`);
+                            downloadBtn.href = result.compressed;
+                            downloadBtn.classList.remove('hidden');
+                        } catch (error) {
+                            resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                        }
+                        btnText.textContent = 'Compress Image';
+                        spinner.classList.remove('show');
+                    }, 500); // Simulate processing delay
+                };
+                img.onerror = () => {
+                    resultDiv.innerHTML = `<p class="error">Error: Failed to process image.</p>`;
+                    btnText.textContent = 'Compress Image';
+                    spinner.classList.remove('show');
+                };
+                img.src = canvas.toDataURL();
+            });
+        });
+    </script>
+</body>
+
+</html>
