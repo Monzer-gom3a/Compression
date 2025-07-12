@@ -410,6 +410,7 @@
         }
 
         @keyframes shake {
+
             0%,
             100% {
                 transform: translateX(0);
@@ -442,6 +443,115 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
             margin-top: 1rem;
             animation: fadeInUp 0.3s ease-out;
+        }
+
+        /* Bits comparison styling */
+        .bits-comparison {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .bits-box {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .bits-box h4 {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .bits-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .bits-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .compression-arrow {
+            position: relative;
+            height: 2px;
+            background: var(--primary);
+            margin: 1rem 0;
+            animation: flowArrow 2s infinite;
+        }
+
+        .compression-arrow::after {
+            content: '→';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        @keyframes flowArrow {
+            0% {
+                width: 0;
+            }
+
+            50% {
+                width: 100%;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        .compression-stats {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .compression-ratio {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--success);
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -799,14 +909,54 @@
                         const originalBits = inputText.value.length * 8;
                         const compressedBits = result.bits;
                         const compressionRatio = originalBits ? ((originalBits - compressedBits) / originalBits * 100).toFixed(2) : 0;
+                        const bitsSaved = originalBits - compressedBits;
 
                         resultDiv.innerHTML = `
-                            <h3 class="gradient-text">Results</h3>
-                            <p id="textOriginalBits">Original Bits: ${originalBits}</p>
-                            <p id="textCompressedBits">Compressed Bits: ${compressedBits}</p>
-                            <p id="textCompressionRatio">Compression Ratio: ${compressionRatio}%</p>
-                            <p id="textCompressedOutput">Compressed Output: ${result.compressed}</p>
-                        `;
+                        <h3 class="gradient-text">Compression Results</h3>
+                        
+                        <div class="bits-comparison">
+                            <div class="bits-box">
+                                <h4>Before Compression</h4>
+                                <div class="bits-value">${originalBits}</div>
+                                <div class="bits-label">bits</div>
+                            </div>
+                            <div class="bits-box">
+                                <h4>After Compression</h4>
+                                <div class="bits-value">${compressedBits}</div>
+                                <div class="bits-label">bits</div>
+                            </div>
+                        </div>
+
+                        <div class="compression-arrow"></div>
+
+                        <div class="compression-ratio">
+                            ${compressionRatio}% Compression Achieved
+                        </div>
+
+                        <div class="compression-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">Total Bits Saved</span>
+                                <span class="stat-value">${bitsSaved} bits</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Algorithm Used</span>
+                                <span class="stat-value">${algorithm.value}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Original Size</span>
+                                <span class="stat-value">${(originalBits / 8).toFixed(2)} bytes</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Compressed Size</span>
+                                <span class="stat-value">${(compressedBits / 8).toFixed(2)} bytes</span>
+                            </div>
+                        </div>
+
+                        <div class="result">
+                            <h4>Compressed Output</h4>
+                            <p id="textCompressedOutput">${result.compressed}</p>
+                        </div>
+                    `;
                     } catch (error) {
                         resultDiv.innerHTML = `
                             <h3 class="gradient-text">Results</h3>
@@ -883,6 +1033,7 @@
                 const spinner = document.getElementById('imageSpinner');
                 const resultDiv = document.getElementById('imageResult');
                 const downloadBtn = document.getElementById('downloadImageBtn');
+
                 if (!canvas || !btnText || !spinner || !resultDiv || !downloadBtn) {
                     console.error('One or more image compression elements not found.');
                     if (resultDiv) {
@@ -890,17 +1041,63 @@
                     }
                     return;
                 }
-                const img = new Image();
+
                 btnText.textContent = 'Compressing...';
                 spinner.classList.add('show');
                 downloadBtn.classList.add('hidden');
+
+                const img = new Image();
                 img.onload = () => {
                     setTimeout(() => {
                         try {
                             const result = jpegCompress(img);
-                            setTextContent('imageOriginalBits', `Original Bits: ${result.originalBits}`);
-                            setTextContent('imageCompressedBits', `Compressed Bits: ${result.bits}`);
-                            setTextContent('imageCompressionRatio', `Compression Ratio: ${((result.originalBits - result.bits) / result.originalBits * 100).toFixed(2)}%`);
+                            const originalBits = result.originalBits;
+                            const compressedBits = result.bits;
+                            const compressionRatio = ((originalBits - compressedBits) / originalBits * 100).toFixed(2);
+                            const bitsSaved = originalBits - compressedBits;
+
+                            resultDiv.innerHTML = `
+                            <h3 class="gradient-text">Compression Results</h3>
+                            
+                            <div class="bits-comparison">
+                                <div class="bits-box">
+                                    <h4>Before Compression</h4>
+                                    <div class="bits-value">${originalBits}</div>
+                                    <div class="bits-label">bits</div>
+                                </div>
+                                <div class="bits-box">
+                                    <h4>After Compression</h4>
+                                    <div class="bits-value">${compressedBits}</div>
+                                    <div class="bits-label">bits</div>
+                                </div>
+                            </div>
+
+                            <div class="compression-arrow"></div>
+
+                            <div class="compression-ratio">
+                                ${compressionRatio}% Compression Achieved
+                            </div>
+
+                            <div class="compression-stats">
+                                <div class="stat-row">
+                                    <span class="stat-label">Total Bits Saved</span>
+                                    <span class="stat-value">${bitsSaved} bits</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Original Size</span>
+                                    <span class="stat-value">${(originalBits / 8 / 1024).toFixed(2)} KB</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Compressed Size</span>
+                                    <span class="stat-value">${(compressedBits / 8 / 1024).toFixed(2)} KB</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Dimensions</span>
+                                    <span class="stat-value">${result.width}x${result.height}px</span>
+                                </div>
+                            </div>
+                        `;
+
                             downloadBtn.href = result.compressed;
                             downloadBtn.classList.remove('hidden');
                         } catch (error) {
@@ -908,13 +1105,15 @@
                         }
                         btnText.textContent = 'Compress Image';
                         spinner.classList.remove('show');
-                    }, 500); // Simulate processing delay
+                    }, 500);
                 };
+
                 img.onerror = () => {
                     resultDiv.innerHTML = `<p class="error">Error: Failed to process image.</p>`;
                     btnText.textContent = 'Compress Image';
                     spinner.classList.remove('show');
                 };
+
                 img.src = canvas.toDataURL();
             });
         });
